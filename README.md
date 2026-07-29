@@ -132,3 +132,12 @@ Design documents live in [`specs/001-tit-usage-cli/`](specs/001-tit-usage-cli/);
 the project's engineering rules are in
 [`.specify/memory/constitution.md`](.specify/memory/constitution.md).
 `main` is protected: all changes land through a pull request.
+
+Contributions are welcome. The bar is the same one CI enforces: `gofmt` clean,
+`go vet` clean, `govulncheck` clean, and total test coverage at or above 85%.
+Provider endpoints are undocumented and change without warning, so fixes there
+are especially useful — please include a fixture reproducing the shape you saw.
+
+## License
+
+[MIT](LICENSE) © Elderberry Games
