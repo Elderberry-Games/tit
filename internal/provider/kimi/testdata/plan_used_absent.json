@@ -1,0 +1,29 @@
+{
+  "user": {"membership": {"level": "LEVEL_FREE"}},
+  "usage": {
+    "limit": "500",
+    "remaining": "125",
+    "reset_at": "2026-01-09T15:23:13.716839300Z"
+  },
+  "limits": [
+    {
+      "window": {"duration": 5, "timeUnit": "TIME_UNIT_HOUR"},
+      "detail": {
+        "limit": "100",
+        "remaining": "40",
+        "resetAt": "2026-01-06T13:33:02Z"
+      }
+    },
+    {
+      "window": {"duration": 2, "timeUnit": "TIME_UNIT_DAY"},
+      "detail": {
+        "limit": "1000",
+        "used": "0",
+        "remaining": "1000",
+        "reset_time": "not-a-timestamp"
+      }
+    },
+    null,
+    {"window": null, "detail": null}
+  ]
+}
