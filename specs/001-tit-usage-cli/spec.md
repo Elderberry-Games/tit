@@ -160,6 +160,13 @@ unlock integrations (shell prompts, tmux status lines) that multiply the tool's 
 - **FR-015**: The tool MUST work without any configuration file; sensible defaults MUST cover
   the first-run experience.
 
+### Technical Constraints (user-mandated)
+
+- **TC-001**: The terminal interface MUST be built with the Bubble Tea framework
+  (<https://github.com/charmbracelet/bubbletea>). This is an explicit stakeholder mandate, not
+  an implementation suggestion; the planning phase MUST adopt it and MAY draw on its companion
+  libraries from the same ecosystem where they serve the spec's presentation requirements.
+
 ### Key Entities
 
 - **Provider**: An AI service whose limits are monitored (initially Claude, Codex, Kimi).
@@ -230,3 +237,6 @@ states), playful but precise copy, and zero visual noise — consistent with the
 - English-only output for v1.
 - If a provider offers no queryable limit data at all, tit reports that honestly in the
   provider's section rather than inventing figures.
+- The Bubble Tea mandate (TC-001) coexists with the one-shot snapshot scope: v1 renders a
+  single view and exits; Bubble Tea's interactive capabilities (watch mode, keyboard
+  navigation) remain available headroom for future versions, not v1 scope.

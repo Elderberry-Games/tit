@@ -34,6 +34,9 @@
 - The user mandated Go as the implementation language; per spec-quality rules this is kept out
   of the spec and is instead governed by the constitution (Principle III: Go, and Only Go),
   which the `/speckit-plan` Constitution Check will enforce.
+- TC-001 (Bubble Tea) is an explicit stakeholder mandate recorded under "Technical Constraints
+  (user-mandated)" — a deliberate, labeled exception to the "no implementation details" rule,
+  not incidental leakage; the checklist items above remain satisfied in spirit.
 - CLI surface details that appear in the spec (`tit usage`, `--json`, `NO_COLOR`) are the
   user-facing product interface of a terminal tool, not implementation technology choices.
 - All items pass; spec is ready for `/speckit-plan` (or `/speckit-clarify` first if desired).
