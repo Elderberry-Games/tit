@@ -97,6 +97,10 @@ flagged — they drive the "parse leniently, fail friendly" design rules.
     counts available (unlike Claude/Codex).
   - Read-only token policy (CodexBar pattern): never refresh (refresh tokens rotate and would
     invalidate the CLI's chain); on expiry → "run `kimi` to re-login".
+  - **Access tokens expire after 15 minutes** (`expires_in: 900`). Consequence: the cached
+    token is valid only if the Kimi CLI ran very recently, so Kimi's plan source will often
+    report `unauthorized` with a re-login hint. Accepted trade-off (see R11); implementing the
+    refresh flow ourselves is explicitly rejected.
 - **API-key source** (Moonshot open platform): `MOONSHOT_API_KEY` (+ `MOONSHOT_REGION` for
   `.ai` vs `.cn` host) → `GET /v1/users/me/balance` (documented). No rate-limit headers and no
   tier/RPM query exist → report balance as an informational entry and state honestly that
@@ -155,6 +159,35 @@ flagged — they drive the "parse leniently, fail friendly" design rules.
 - OpenAI API-key probe spends real (sub-cent) money — documented in `tit usage --help`.
 - `govulncheck` clean is a merge gate (constitution); dependencies limited to the Charm stack
   (TC-001) + stdlib.
+
+## R11. Source strategy decision (2026-07-29)
+
+- **Decision**: cached OAuth credentials are the v1 source strategy, exactly as specified in
+  R3–R5 — tit reads each harness's existing credential store read-only and calls the provider
+  endpoints itself. No token refresh, no harness process invocation in v1.
+- **Rationale**: zero user configuration (credentials already exist locally), fast (single
+  HTTP call per source, no CLI startup cost), and structurally simple (constitution V).
+- **Alternatives investigated and deferred** (researched 2026-07-29; viable, documented here as
+  future headroom rather than v1 scope):
+  - Claude: `claude --print "/usage"` dispatches the usage slash command non-interactively at
+    zero quota cost with the harness handling auth/refresh; output is human text (integer
+    percentages, localized reset strings) and each call costs ~3–4.5 s of CLI startup.
+    Recent-version-dependent — feature-detect via the `slash_commands` list in the
+    `--output-format json` init event.
+  - Claude: registering as the statusline command yields a pushed `rate_limits` JSON payload
+    with decimal percentages and epoch resets — richer than any pull source, but only while an
+    interactive session is running, and it requires modifying the user's settings.
+  - Codex: `codex app-server` (JSON-RPC over stdio) exposes `account/rateLimits/read`,
+    returning structured limits in ~0.85 s cold including spawn, with codex refreshing its own
+    token. Requires codex ≥ 0.48.0. This is the most stable contract of any Codex avenue.
+  - Kimi: `kimi web --no-open` runs a local REST server exposing
+    `GET /api/v1/oauth/usage` (bearer token at `~/.kimi-code/server.token`, running instances
+    discoverable via `~/.kimi-code/server/instances/*.json`), which sidesteps the 15-minute
+    token TTL entirely.
+- **Accepted consequence**: Kimi's plan source will frequently show `unauthorized` because of
+  the 15-minute access-token TTL (R5). The friendly hint ("run `kimi` to refresh") makes this
+  legible rather than mysterious. If it proves annoying in practice, the `kimi web` avenue
+  above is the drop-in remedy in a follow-up feature.
 
 ## Fragility register (drives lenient parsing + friendly errors)
 
