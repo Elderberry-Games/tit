@@ -1,0 +1,8 @@
+[1mClaude[m[38;2;110;118;129m  ·  not configured[m
+  plan  [38;2;110;118;129mno Claude credential found — run `claude` to log in[m
+
+[1mCodex[m[38;2;110;118;129m  ·  unauthorized[m
+  plan  [38;2;110;118;129mcredential rejected — run `codex` to re-authenticate[m
+
+[1mKimi[m
+  key   Tokens/min  [38;2;122;168;123m████████[m[38;2;110;118;129m░░░░░░░░░░░░[m 41%  8,200/20,000  [38;2;110;118;129mresets in 30s[m
