@@ -8,6 +8,13 @@
 
 **Input**: User description: "build initial version of a command line tool called \"tit\" that has subcommands such as \"tit usage\" etc. the tit usage must show the limits of claude, codex and kimi in a unified way in the terminal. make it look slick. consult mobbin mcp for looks." Clarified: the initial version is a terminal-only command line tool — no web UI, no GUI, nothing beyond the terminal.
 
+## Clarifications
+
+### Session 2026-07-29
+
+- Q: Which kind of limits should `tit usage` monitor, and where does the usage data come from? → A: Both, merged — subscription/coding-plan windows (via each coding agent's existing local credentials) and developer API-key rate limits (via locally available API keys), shown together per provider.
+- Q: At what percentage used should a limit window switch from "healthy" to "warning"? → A: 90%.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See all my limits at a glance (Priority: P1)
@@ -29,7 +36,7 @@ usage figures, and reset times appear in one coherent view.
 1. **Given** valid credentials for Claude, Codex, and Kimi, **When** the user runs `tit usage`,
    **Then** the terminal shows one unified view with a clearly labeled section per provider,
    each limit window's consumed/total amounts, percentage used, and time until reset.
-2. **Given** a limit window that is nearly exhausted, **When** the user runs `tit usage`,
+2. **Given** a limit window at or above 90% consumed, **When** the user runs `tit usage`,
    **Then** that window is visually distinguished (warning state) so it stands out from healthy
    windows at a glance.
 3. **Given** a fully exhausted limit window, **When** the user runs `tit usage`, **Then** the
@@ -112,16 +119,22 @@ unlock integrations (shell prompts, tmux status lines) that multiply the tool's 
 - **FR-001**: The tool MUST be invoked as `tit` and organize functionality into subcommands;
   the initial release MUST include `usage`, `--help`/`help`, and `--version`.
 - **FR-002**: `tit usage` MUST display, in a single unified terminal view, the current usage
-  and limits for Claude, Codex, and Kimi.
+  and limits for Claude, Codex, and Kimi. For each provider this covers BOTH limit sources,
+  merged into the provider's section: (a) subscription/coding-plan windows obtained via the
+  provider's coding agent's existing local credentials, and (b) developer API-key rate limits
+  obtained via locally available API keys. Each window MUST be labeled with its source (plan
+  vs. API key); if only one source is available locally, the section shows that source alone
+  without treating the other's absence as an error.
 - **FR-003**: For every limit window a provider exposes (hourly, weekly, or other), the view
   MUST show: the window's name/duration, amount consumed, total allowance (when known),
   percentage consumed, and time remaining until the window resets.
 - **FR-004**: All providers MUST be presented in a visually consistent, unified format — same
   layout, same ordering of elements, same styling rules — regardless of how each provider
   reports its data.
-- **FR-005**: Each limit window MUST have a visual health state: healthy, warning (approaching
-  the limit), and exhausted; states MUST be distinguishable by more than color alone (e.g.,
-  labels or symbols) so they survive colorless output.
+- **FR-005**: Each limit window MUST have a visual health state: healthy (below 90% consumed),
+  warning (at or above 90% consumed), and exhausted (100% consumed or provider reports the
+  window as blocked); states MUST be distinguishable by more than color alone (e.g., labels or
+  symbols) so they survive colorless output.
 - **FR-006**: The view MUST include, per window, a graphical fill indicator (progress-bar-like)
   aligned consistently across providers, with the numeric "consumed / total" and reset
   countdown adjacent to it (visual language modeled on the referenced usage dashboards: aligned
@@ -151,9 +164,10 @@ unlock integrations (shell prompts, tmux status lines) that multiply the tool's 
 
 - **Provider**: An AI service whose limits are monitored (initially Claude, Codex, Kimi).
   Attributes: display name, configuration/authentication state, reachability.
-- **Limit Window**: A single rate-limit bucket a provider enforces. Attributes: name/duration
-  (e.g., hourly, weekly, other), consumed amount, total allowance (may be unknown or
-  unlimited), reset time, derived health state (healthy/warning/exhausted).
+- **Limit Window**: A single rate-limit bucket a provider enforces. Attributes: source
+  (subscription/plan vs. API key), name/duration (e.g., hourly, weekly, other), consumed
+  amount, total allowance (may be unknown or unlimited), reset time, derived health state
+  (healthy/warning/exhausted).
 - **Usage Snapshot**: The result of one `tit usage` run — per-provider collections of limit
   windows plus per-provider fetch status (ok / unconfigured / error with reason) and the
   moment the snapshot was taken.
@@ -204,8 +218,9 @@ states), playful but precise copy, and zero visual noise — consistent with the
 - Users already use the three providers' own tooling on the same machine, so provider
   authentication material (session credentials, API keys, or local config) already exists
   locally; tit reuses it read-only and never prompts users to enter secrets.
-- "Limits" means account/plan rate-limit windows (hourly, weekly, and any other windows a
-  provider exposes), not billing/spend tracking — spend is out of scope for v1.
+- "Limits" covers both subscription/coding-plan rate-limit windows and developer API-key rate
+  limits (hourly, weekly, and any other windows a provider exposes), merged per provider;
+  billing/spend tracking remains out of scope for v1.
 - The unified view is a one-shot snapshot per invocation; live auto-refreshing (watch mode) is
   out of scope for v1.
 - Provider set is fixed at Claude, Codex, and Kimi for v1; adding providers is a future
