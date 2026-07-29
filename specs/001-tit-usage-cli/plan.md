@@ -12,8 +12,9 @@ view. Approach: three provider adapters normalize wildly different undocumented 
 one small data model; a pure `renderDashboard(snapshot, width)` function styled with Lip Gloss
 v2 serves both the default one-shot print and the Bubble Tea v2 `--watch` live view (TC-001).
 Concurrent fetches with per-provider 2.5 s timeouts keep the view under 3 s; per-provider
-failures render as friendly hints without hiding healthy providers. Full endpoint/credential
-research in [research.md](research.md).
+failures render as friendly hints without hiding healthy providers. Zero user configuration:
+tit reads the OAuth credentials the harness CLIs have already cached locally. Full
+endpoint/credential research in [research.md](research.md).
 
 ## Technical Context
 
@@ -24,8 +25,10 @@ research in [research.md](research.md).
 `github.com/charmbracelet/x/term` (TTY/width). Test-only: `x/exp/golden`, `x/exp/teatest/v2`.
 No CLI framework — stdlib `flag` + manual dispatch (research R1).
 
-**Storage**: none. Reads existing credential files/keychain/env read-only (research R3–R5);
-never writes, never refreshes tokens, no cache files.
+**Storage**: none. Reads existing cached OAuth credentials (files/keychain/env) read-only
+(research R3–R5, strategy confirmed in R11); never writes, never refreshes tokens, no cache
+files. Harness-delegation alternatives (`claude --print "/usage"`, `codex app-server`,
+`kimi web`) are researched and deferred as future headroom, not v1 scope.
 
 **Testing**: `go test -race -cover` ≥85%; `httptest` fixture servers per provider;
 golden-file rendering tests (fixed width, injected clock); watch model driven via direct
