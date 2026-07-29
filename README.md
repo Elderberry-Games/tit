@@ -22,15 +22,45 @@ Kimi  ·  Allegretto
 
 ## Install
 
+Requires Go 1.26 or newer (see `go.mod`). tit builds to a single static binary
+with no runtime dependencies.
+
+### With `go install`
+
 ```sh
 go install github.com/Elderberry-Games/tit/cmd/tit@latest
 ```
 
-Or build from a clone:
+This drops `tit` into `$(go env GOPATH)/bin` — usually `~/go/bin`. If the
+command is not found afterwards, that directory is not on your `PATH`:
 
 ```sh
-make build   # produces ./tit
+export PATH="$PATH:$(go env GOPATH)/bin"     # add to ~/.bashrc or ~/.zshrc
 ```
+
+### From a clone
+
+```sh
+git clone https://github.com/Elderberry-Games/tit.git
+cd tit
+make build                  # produces ./tit, stamped with version and commit
+cp tit ~/.local/bin/tit     # or anywhere else on your PATH
+```
+
+### Verify
+
+```sh
+tit version    # prints: tit <version> (<commit>)
+tit usage      # your limits, if any provider CLI is logged in
+```
+
+There is nothing else to set up — no config file, no API keys, no login step.
+See [Configuration](#configuration) for the optional environment variables.
+
+### Upgrade and uninstall
+
+Re-run the same `go install` command to upgrade, or `git pull && make build` in
+a clone. To uninstall, delete the binary: tit stores no state of its own.
 
 ## Use
 
