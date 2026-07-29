@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Elderberry-Games/tit/specs/001/usage-json.schema.json",
+  "title": "tit usage --json output",
+  "type": "object",
+  "required": ["taken_at", "providers"],
+  "additionalProperties": false,
+  "properties": {
+    "taken_at": { "type": "string", "format": "date-time" },
+    "providers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/provider" }
+    }
+  },
+  "$defs": {
+    "provider": {
+      "type": "object",
+      "required": ["provider", "display_name", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "provider": { "enum": ["claude", "codex", "kimi"] },
+        "display_name": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["source", "status", "windows", "info"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "enum": ["plan", "apikey"] },
+        "status": { "enum": ["ok", "unconfigured", "unauthorized", "unavailable", "unsupported"] },
+        "detail": { "type": "string" },
+        "windows": { "type": "array", "items": { "$ref": "#/$defs/window" } },
+        "info": { "type": "array", "items": { "$ref": "#/$defs/info_item" } }
+      }
+    },
+    "window": {
+      "type": "object",
+      "required": ["label", "used_percent", "health"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "duration_seconds": { "type": ["integer", "null"], "minimum": 0 },
+        "used_percent": { "type": "number", "minimum": 0 },
+        "used": { "type": ["number", "null"] },
+        "limit": { "type": ["number", "null"] },
+        "unit": { "type": "string" },
+        "unlimited": { "type": "boolean" },
+        "reset_at": { "type": ["string", "null"], "format": "date-time" },
+        "reset_in_seconds": { "type": ["integer", "null"], "minimum": 0 },
+        "health": { "enum": ["healthy", "warning", "exhausted"] }
+      }
+    },
+    "info_item": {
+      "type": "object",
+      "required": ["label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    }
+  }
+}
