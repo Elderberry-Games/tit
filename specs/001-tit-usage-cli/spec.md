@@ -15,6 +15,10 @@
 - Q: Which kind of limits should `tit usage` monitor, and where does the usage data come from? → A: Both, merged — subscription/coding-plan windows (via each coding agent's existing local credentials) and developer API-key rate limits (via locally available API keys), shown together per provider.
 - Q: At what percentage used should a limit window switch from "healthy" to "warning"? → A: 90%.
 
+### Session 2026-07-29 (second pass)
+
+- Q: When a user runs `tit usage` in a terminal, should it print the view once and exit, or open a live interactive display? → A: One-shot by default + an opt-in `--watch` flag that opens a live auto-refreshing view.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See all my limits at a glance (Priority: P1)
@@ -76,13 +80,15 @@ helpful, well-formatted guidance.
 ### User Story 3 - Focus and automate (Priority: P3)
 
 A power user checks a single provider (`tit usage claude`) when they only care about one limit,
-and pipes machine-readable output (`tit usage --json`) into scripts, status bars, or prompts.
+pipes machine-readable output (`tit usage --json`) into scripts, status bars, or prompts, and
+keeps a live view open (`tit usage --watch`) while burning through a heavy session.
 
 **Why this priority**: Valuable quality-of-life additions once the unified view works, and they
 unlock integrations (shell prompts, tmux status lines) that multiply the tool's usefulness.
 
-**Independent Test**: Can be fully tested by running `tit usage <provider>` and `tit usage
---json` and verifying filtered output and well-formed structured output respectively.
+**Independent Test**: Can be fully tested by running `tit usage <provider>`, `tit usage
+--json`, and `tit usage --watch`, verifying filtered output, well-formed structured output,
+and a live view that exits cleanly, respectively.
 
 **Acceptance Scenarios**:
 
@@ -93,6 +99,9 @@ unlock integrations (shell prompts, tmux status lines) that multiply the tool's 
    reset time shown in the human view, with no decorative styling.
 3. **Given** `--json` output is piped to another program, **When** parsed, **Then** it contains
    machine-usable reset timestamps and numeric usage values.
+4. **Given** an interactive terminal, **When** the user runs `tit usage --watch`, **Then** a
+   live view opens with ticking reset countdowns and periodically refreshed usage data, and
+   pressing `q` (or Ctrl+C) exits cleanly, restoring the terminal.
 
 ---
 
@@ -159,6 +168,11 @@ unlock integrations (shell prompts, tmux status lines) that multiply the tool's 
   options, and a non-zero exit status.
 - **FR-015**: The tool MUST work without any configuration file; sensible defaults MUST cover
   the first-run experience.
+- **FR-016**: By default `tit usage` MUST render the view once and exit. With `--watch`, it
+  MUST instead open a live full-screen view that keeps reset countdowns ticking (updating at
+  least once per second) and re-fetches provider data periodically (at most once per minute),
+  until the user quits with `q` or Ctrl+C. `--watch` combined with the machine-readable output
+  mode MUST be rejected with a friendly error.
 
 ### Technical Constraints (user-mandated)
 
@@ -228,8 +242,8 @@ states), playful but precise copy, and zero visual noise — consistent with the
 - "Limits" covers both subscription/coding-plan rate-limit windows and developer API-key rate
   limits (hourly, weekly, and any other windows a provider exposes), merged per provider;
   billing/spend tracking remains out of scope for v1.
-- The unified view is a one-shot snapshot per invocation; live auto-refreshing (watch mode) is
-  out of scope for v1.
+- The default unified view is a one-shot snapshot per invocation; live auto-refreshing is
+  available only behind the opt-in `--watch` flag (FR-016).
 - Provider set is fixed at Claude, Codex, and Kimi for v1; adding providers is a future
   feature.
 - The tool targets a single local user per machine; multi-account switching per provider is out
@@ -237,6 +251,6 @@ states), playful but precise copy, and zero visual noise — consistent with the
 - English-only output for v1.
 - If a provider offers no queryable limit data at all, tit reports that honestly in the
   provider's section rather than inventing figures.
-- The Bubble Tea mandate (TC-001) coexists with the one-shot snapshot scope: v1 renders a
-  single view and exits; Bubble Tea's interactive capabilities (watch mode, keyboard
-  navigation) remain available headroom for future versions, not v1 scope.
+- The Bubble Tea mandate (TC-001) serves both run modes: the default one-shot render and the
+  `--watch` live view (FR-016). Richer interactivity (keyboard navigation, drill-down) remains
+  future headroom beyond quitting `--watch`.
